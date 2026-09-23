@@ -6,3 +6,25 @@ paths:
   /v1/moods: {get: {summary: List moods}, post: {summary: Create mood}}
   /v1/assessments: {get: {summary: List assessments}}
   /v1/journals: {get: {summary: List journals}, post: {summary: Create journal}}
+  /v1/weekly-reports/current:
+    get:
+      summary: 打开某结束日（默认今天）的当前 14 天情绪周报快照
+      parameters:
+        - {name: end_date, in: query, required: false, schema: {type: string, format: date}, description: 周报结束日 YYYY-MM-DD，默认今天}
+      responses:
+        '200': {description: 已固化的周报快照}
+        '404': {description: 该结束日尚未生成周报}
+  /v1/weekly-reports/generate:
+    post:
+      summary: 生成当前 14 天情绪周报；同账号同结束日重复生成返回已有快照且不覆盖
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                end_date: {type: string, format: date, description: 周报结束日，默认今天}
+      responses:
+        '201': {description: 新生成并固化的周报}
+        '200': {description: 已存在，返回既有快照（data.already_exists=true）}

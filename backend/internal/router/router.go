@@ -13,10 +13,11 @@ import (
 )
 
 type Handlers struct {
-	User       *handler.UserHandler
-	Mood       *handler.MoodHandler
-	Assessment *handler.AssessmentHandler
-	Journal    *handler.JournalHandler
+	User         *handler.UserHandler
+	Mood         *handler.MoodHandler
+	Assessment   *handler.AssessmentHandler
+	Journal      *handler.JournalHandler
+	WeeklyReport *handler.WeeklyReportHandler
 }
 
 func New(cfg config.Config, h Handlers, l *slog.Logger) *gin.Engine {
@@ -34,6 +35,7 @@ func New(cfg config.Config, h Handlers, l *slog.Logger) *gin.Engine {
 		RegisterMoods(g, h.Mood, auth)
 		RegisterAssessments(g, h.Assessment, auth, l)
 		RegisterJournals(g, h.Journal, auth)
+		RegisterWeeklyReports(g, h.WeeklyReport, auth)
 	}
 	return r
 }

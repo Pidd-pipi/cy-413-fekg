@@ -38,3 +38,6 @@ type JournalRequest struct {
 	Weather   string `json:"weather" validate:"max=30"`
 	IsPrivate bool   `json:"is_private"`
 }
+type WeeklyReportGenerateRequest struct {
+	EndDate string `json:"end_date" validate:"omitempty,datetime=2006-01-02"`
+}

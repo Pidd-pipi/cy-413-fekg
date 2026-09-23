@@ -30,6 +30,12 @@ func ErrorHandler(logger *slog.Logger) gin.HandlerFunc {
 			if app.Code == constants.CodeUnauthorized {
 				status = http.StatusUnauthorized
 			}
+			if app.Code == constants.CodeNotFound {
+				status = http.StatusNotFound
+			}
+			if app.Code == constants.CodeConflict {
+				status = http.StatusConflict
+			}
 			c.JSON(status, dto.Response{Code: app.Code, Message: app.Message})
 			return
 		}

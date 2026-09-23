@@ -10,6 +10,7 @@ import (
 type MoodRepository interface {
 	Create(*model.Mood) error
 	List(uint, *time.Time) ([]model.Mood, error)
+	ListRange(uint, time.Time, time.Time) ([]model.Mood, error)
 	ByID(uint, uint) (*model.Mood, error)
 	Update(*model.Mood) error
 	Delete(*model.Mood) error
@@ -24,6 +25,14 @@ func (r *moodRepository) List(uid uint, date *time.Time) (out []model.Mood, e er
 		q = q.Where("record_date >= ? AND record_date < ?", date.Truncate(24*time.Hour), date.Truncate(24*time.Hour).AddDate(0, 0, 1))
 	}
 	e = q.Order("record_date desc, id desc").Find(&out).Error
+	return
+}
+
+// ListRange 返回 [start, end) 内的情绪记录，按 record_date、id 升序，
+// 便于周报按自然日分组后取每天最后一条。
+func (r *moodRepository) ListRange(uid uint, start, end time.Time) (out []model.Mood, e error) {
+	e = r.db.Where("user_id = ? AND record_date >= ? AND record_date < ?", uid, start, end).
+		Order("record_date asc, id asc").Find(&out).Error
 	return
 }
 func (r *moodRepository) ByID(id, uid uint) (*model.Mood, error) {
