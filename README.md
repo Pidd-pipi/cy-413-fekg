@@ -23,6 +23,7 @@ MindGarden 是一款用于温柔记录每日心情、完成轻量自我觉察测
 - **情绪记录**：按日期筛选，保存情绪列表；`MoodSelector` 在 Dashboard 和 Moods 页面共享。
 - **心理测评**：浏览压力/睡眠测评，答题后得到分数、结果和关照建议。
 - **日记本**：写作私密日记，记录天气和心情，并用时间轴回顾；`MoodCard` 同时服务情绪记录和日记页。
+- **14 天情绪周报**：心情花园、情绪记录、日记本均可打开。按记录时间与编号取每个自然日最后一条情绪，统计平均心情、最低日、标签频次与有效天数，并带出同日末篇日记的标题与心情。周报为固化快照：同一账号同一结束日只保留一份，重复生成返回已有快照且不覆盖；快照生成后修改/删除情绪或日记均不回写。
 - **个人中心**：修改资料、头像链接，查看完成过的测评报告。
 - **JWT + 角色**：写入数据必须携带 JWT；测评创建接口仅允许 `admin` 角色。
 - **主题切换**：晨雾绿、夜间花园、薰衣草三套 CSS 变量主题。
@@ -94,6 +95,10 @@ Vite 会把本地 `/api` 请求重写到 `http://localhost:19413/v1`；Docker �
 | POST | `/api/v1/assessments` | 创建测评（仅 admin） |
 | GET / POST | `/api/v1/journals` | 查询（支持 `mood_level`）/创建日记 |
 | PUT / DELETE | `/api/v1/journals/:id` | 修改/删除日记 |
+| POST | `/api/v1/weekly-reports/generate` | 生成（或取回）14 天情绪周报，body 可带 `end_date` |
+| GET | `/api/v1/weekly-reports/latest` | 打开当前最新一期已固化周报 |
+| GET | `/api/v1/weekly-reports?end_date=YYYY-MM-DD` | 按结束日打开已有周报（缺省返回最新一期） |
+| GET | `/api/v1/weekly-reports/:id` | 按编号打开周报 |
 
 更精简的 OpenAPI 描述见 [`backend/api/openapi.yaml`](backend/api/openapi.yaml)。
 
@@ -117,10 +122,10 @@ Vite 会把本地 `/api` 请求重写到 `http://localhost:19413/v1`；Docker �
 ├── .env.example
 ├── frontend/
 │   ├── src/
-│   │   ├── api/                  # user/mood/assessment/journal 请求
+│   │   ├── api/                  # user/mood/assessment/journal/weeklyReport 请求
 │   │   ├── stores/               # auth、user、mood、theme 状态
-│   │   ├── types/                # 跨层实体类型
-│   │   ├── components/common/    # 共享业务组件与错误边界
+│   │   ├── types/                # 跨层实体类型（含 WeeklyReport 快照）
+│   │   ├── components/common/    # 共享业务组件（含 WeeklyReportDrawer/Button）与错误边界
 │   │   ├── hooks/                # useAuth/useTheme/useMoodStats
 │   │   ├── pages/                # 五个核心页面
 │   │   ├── router/               # 路由与 JWT 守卫

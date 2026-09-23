@@ -10,6 +10,7 @@ import (
 type MoodRepository interface {
 	Create(*model.Mood) error
 	List(uint, *time.Time) ([]model.Mood, error)
+	ListBetween(uid uint, start, end time.Time) ([]model.Mood, error)
 	ByID(uint, uint) (*model.Mood, error)
 	Update(*model.Mood) error
 	Delete(*model.Mood) error
@@ -24,6 +25,14 @@ func (r *moodRepository) List(uid uint, date *time.Time) (out []model.Mood, e er
 		q = q.Where("record_date >= ? AND record_date < ?", date.Truncate(24*time.Hour), date.Truncate(24*time.Hour).AddDate(0, 0, 1))
 	}
 	e = q.Order("record_date desc, id desc").Find(&out).Error
+	return
+}
+
+// ListBetween 返回 [start, end) 时间区间内的情绪记录，按记录时间与编号升序，
+// 供周报“按记录时间和编号选取每个自然日最后一条”使用。
+func (r *moodRepository) ListBetween(uid uint, start, end time.Time) (out []model.Mood, e error) {
+	e = r.db.Where("user_id = ? AND record_date >= ? AND record_date < ?", uid, start, end).
+		Order("record_date asc, id asc").Find(&out).Error
 	return
 }
 func (r *moodRepository) ByID(id, uid uint) (*model.Mood, error) {

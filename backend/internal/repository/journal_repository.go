@@ -4,11 +4,13 @@ import (
 	"errors"
 	"github.com/blueship581/mindgarden/backend/internal/model"
 	"gorm.io/gorm"
+	"time"
 )
 
 type JournalRepository interface {
 	Create(*model.Journal) error
 	List(uint, int) ([]model.Journal, error)
+	ListBetween(uid uint, start, end time.Time) ([]model.Journal, error)
 	ByID(uint, uint) (*model.Journal, error)
 	Update(*model.Journal) error
 	Delete(*model.Journal) error
@@ -23,6 +25,14 @@ func (r *journalRepository) List(uid uint, level int) (out []model.Journal, e er
 		q = q.Where("mood_level = ?", level)
 	}
 	e = q.Order("created_at desc").Find(&out).Error
+	return
+}
+
+// ListBetween 返回 [start, end) 时间区间内的日记，按创建时间与编号升序，
+// 供周报选取“同日末篇日记”使用。
+func (r *journalRepository) ListBetween(uid uint, start, end time.Time) (out []model.Journal, e error) {
+	e = r.db.Where("user_id = ? AND created_at >= ? AND created_at < ?", uid, start, end).
+		Order("created_at asc, id asc").Find(&out).Error
 	return
 }
 func (r *journalRepository) ByID(id, uid uint) (*model.Journal, error) {

@@ -6,3 +6,53 @@ paths:
   /v1/moods: {get: {summary: List moods}, post: {summary: Create mood}}
   /v1/assessments: {get: {summary: List assessments}}
   /v1/journals: {get: {summary: List journals}, post: {summary: Create journal}}
+  /v1/weekly-reports/generate:
+    post:
+      summary: Generate or fetch the frozen 14-day weekly mood report
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                end_date: {type: string, format: date, description: Inclusive last day; defaults to today (UTC)}
+      responses:
+        '201':
+          description: Snapshot created, or existing snapshot returned untouched (data.reused=true)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: {type: integer, example: 0}
+                  data:
+                    type: object
+                    properties:
+                      id: {type: integer}
+                      start_date: {type: string, format: date}
+                      end_date: {type: string, format: date}
+                      reused: {type: boolean}
+                      report:
+                        type: object
+                        properties:
+                          average: {type: number, description: Mean of the last mood level of each calendar day}
+                          lowest_day: {type: [object, 'null'], description: Day with the lowest last-mood level}
+                          tag_counts: {type: array, items: {type: object, properties: {tag: {type: string}, count: {type: integer}}}}
+                          valid_days: {type: integer, description: Calendar days having at least one mood}
+                          days:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                date: {type: string, format: date}
+                                mood_level: {type: integer}
+                                has_journal: {type: boolean}
+                                journal_title: {type: string}
+                                journal_mood: {type: integer}
+  /v1/weekly-reports/latest:
+    get: {summary: Open the latest frozen weekly report}
+  /v1/weekly-reports:
+    get: {summary: Open weekly report by end_date query, or the latest one when omitted}
+  /v1/weekly-reports/{id}:
+    get: {summary: Open weekly report by id}

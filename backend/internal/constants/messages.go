@@ -8,5 +8,6 @@ const (
 	MessageMoodSaved      = "情绪已种入你的花园"
 	MessageJournalSaved   = "日记已安全保存"
 	MessageAssessmentDone = "测评结果已生成"
+	MessageWeeklyReport   = "14 天情绪周报已生成"
 	MessageInternal       = "服务暂时不可用"
 )
